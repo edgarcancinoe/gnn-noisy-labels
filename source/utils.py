@@ -135,3 +135,19 @@ def build_model(args, device):
 
     else:
         raise ValueError(f'Invalid GNN type: {args.gnn}')
+
+def load_checkpoint(model, ckpt, device):
+    """
+    Load model checkpoint from the specified path.
+    """
+    if not os.path.exists(ckpt):
+        raise FileNotFoundError(f"Checkpoint file '{ckpt}' does not exist.")
+    
+    # Load the state dict
+    state_dict = torch.load(ckpt, map_location=device)
+    
+    # Load the state dict into the model
+    model.load_state_dict(state_dict, strict=False)
+    
+    logging.info(f"Checkpoint loaded successfully from '{ckpt}'")
+    return model
