@@ -11,7 +11,7 @@ from torch_geometric.loader import DataLoader
 from source.model import *
 from source.utils import save_predictions, build_gnn, load_checkpoint
 from source.loadData import GraphDataset  # type: ignore
-from source.utils import set_seed, get_data_loaders  # type: ignore
+from source.utils import set_seed, get_data_loaders, add_zeros  # type: ignore
 import copy
 from source.config import *
 
@@ -89,7 +89,7 @@ def predict_on_dataset(test_path, folder_name, device, args):
 
     # Prepare test loader
     test_loader = DataLoader(
-        GraphDataset(test_path, transform=lambda x: x),
+        GraphDataset(test_path, transform=add_zeros),
         batch_size=args.batch_size,
         shuffle=False
     )

@@ -3,36 +3,8 @@ import torch
 import pandas as pd
 import tqdm
 from source.model import *
+from source.model import GNN, EnsembleGNN
 from torch.utils.data import random_split, Dataset
-
-def evaluate(data_loader, model, device, calculate_accuracy=False):
-    """
-      Evaluate GNN on test set
-    """
-
-    # Set model to evaluation mode (disables dropout, batch-norm, etc.)
-    model.eval()
-    correct, total, total_loss = 0, 0, 0
-    predictions = []
-    criterion = torch.nn.CrossEntropyLoss() # Fixed CE loss as we want real performance
-    with torch.no_grad():
-        # Iterate trough all test set using tqdm for visualization
-        for data in tqdm(data_loader, desc="Iterating eval graphs", unit="batch"):
-            data = data.to(device)
-            output = model(data)
-            pred = output.argmax(dim=1)
-
-            if calculate_accuracy:
-                correct += (pred == data.y).sum().item()
-                total += data.y.size(0)
-                total_loss += criterion(output, data.y).item()
-            else:
-                predictions.extend(pred.cpu().numpy())
-
-    if calculate_accuracy:
-        accuracy = correct / total
-        return  total_loss / len(data_loader), accuracy
-    return predictions
 
 import random
 import numpy as np
