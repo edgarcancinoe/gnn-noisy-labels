@@ -47,7 +47,6 @@ def set_seed(seed=777):
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
 
-
 def save_predictions(predictions, test_path):
     script_dir = os.getcwd()
     submission_folder = os.path.join(script_dir, "submission")
@@ -81,8 +80,36 @@ class IndexedDataset(Dataset):
         data.idx = torch.tensor(ix, dtype=torch.long)
         return data
     
+from source.loadData import GraphDataset  # type: ignore}
+from torch_geometric.loader import DataLoader
 
+def get_data_loaders(train_path, batch_size=32, split_val=True):
+    """
+    Get train and validation data loaders.
+    """
+    # Load the dataset
+    dataset = GraphDataset(train_path, transform=add_zeros)
+    
+    # Create an indexed version of the dataset
+    indexed_dataset = IndexedDataset(dataset)
 
+    # Split the dataset into training and validation sets
+    if split_val:
+        train_size = int(0.8 * len(indexed_dataset))
+        val_size = len(indexed_dataset) - train_size
+        train_dataset, val_dataset = random_split(indexed_dataset, [train_size, val_size])
+    else:
+        train_dataset = indexed_dataset
+        val_dataset = None
+
+    # Create data loaders
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    
+    if val_dataset is not None:
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+        return train_loader, val_loader
+    
+    return train_loader, None
 ### Model and loss selection
 def get_loss(args, num_train_samples = None):
   if args.baseline_mode == 1:
