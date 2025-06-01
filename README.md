@@ -88,7 +88,7 @@ scikit-learn
 pandas
 ```
 
-## Some experimentation results
+### Some (early) experimentation reported results
 
 
 #### Dataset A: Single GNN with different loss functions
@@ -117,5 +117,5 @@ pandas
 #### Visualization A: GIC - Virutal Ensemble: `noise_prob=0.35`, `noise_rate=0.35`, `ramp_up_epochs=5`, `adam_lr = 0.001`
 
 gnn='gin-virtual', drop_ratio=0.1, num_layer=5, emb_dim=300, batch_size=32, epochs=60, baseline_mode=2, noise_prob=0.35, singleGNN=False, simpleCoTeaching=True, noise_rate=0.35, ramp_up_epochs=5
-![Alt Text](img/Visualization A GIC - Virutal Ensemble.png)
 
+![Alt Text](img/Visualization A GIC - Virutal Ensemble.png)
