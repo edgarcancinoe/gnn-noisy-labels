@@ -102,7 +102,9 @@ def predict_on_dataset(test_path, folder_name, device, args):
         logging.info(f"Processing {name}")
         
         # Heuristics to select architecture config
-        gine = 'gine' in name.lower()
+        gine_list = ['model_C_best.pth', 'old_model_C_best.pth']
+        gine = 'gine' in name.lower() or (name in gine_list)
+
         older300 = 'older' in name.lower()
 
         argss = copy.deepcopy(args)
