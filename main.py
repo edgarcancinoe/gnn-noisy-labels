@@ -39,10 +39,10 @@ def setup_logging(folder_name):
     )
 
 def train_model_on_dataset(train_path, folder_name, device, args):
-
+    print('Starting training sequence.')
     train_loader, val_loader = get_data_loaders(train_path, batch_size=32, split_val=True)
     logging.info(f"Loaded train and validation data from '{train_path}'")
-
+    print('Data has ben loaded and graph object constructed.')
     model = build_gnn(args, device)
     logging.info("Model instantiated for training")
 
@@ -63,6 +63,7 @@ def train_model_on_dataset(train_path, folder_name, device, args):
 
     training_params = ()
     checkpoints_folder = os.path.join("checkpoints", folder_name)
+    os.makedirs(checkpoints_folder, exist_ok=True)
     train_size = len(train_loader.dataset)
 
     # Choose models and training algorithm -------------------------------------
