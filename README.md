@@ -121,3 +121,16 @@ gnn='gin-virtual', drop_ratio=0.1, num_layer=5, emb_dim=300, batch_size=32, epoc
 
 
 ![](https://github.com/edgarcancinoe/gnn-noisy-labels/blob/main/img/Visualization%20A%20GIC%20-%20Virutal%20Ensemble.png)
+![](https://github.com/edgarcancinoe/gnn-noisy-labels/blob/main/img/loss1.png)
+
+
+#### Visualization A: GIC - Virutal Ensemble: `noise_prob=0.35`, `noise_rate=0.35`, `ramp_up_epochs=10`, `adam_lr=0.01`
+
+gnn='gin-virtual', drop_ratio=0.1, num_layer=5, emb_dim=300, batch_size=32, epochs=60, baseline_mode=2, noise_prob=0.35, singleGNN=False, simpleCoTeaching=True, noise_rate=0.35, ramp_up_epochs=10
+
+![](https://github.com/edgarcancinoe/gnn-noisy-labels/blob/main/img/Visualization%20A%20GIC%20-%20Virutal%20EnsembleLR0.01.png)
+![](https://github.com/edgarcancinoe/gnn-noisy-labels/blob/main/img/loss2.png)
+
+#### Dataset D: Co-Teaching with GINEconv implementation. Learning rate increased to 0.05 for ADAM.
+![](https://github.com/edgarcancinoe/gnn-noisy-labels/blob/main/img/trainD.png)
+![](https://github.com/edgarcancinoe/gnn-noisy-labels/blob/main/img/valD.png)
