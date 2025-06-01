@@ -109,9 +109,19 @@ def predict_on_dataset(test_path, folder_name, device, args):
 
         if 'gine' in ckpt_path or gine:
             logging.info("→ GINE-Virtual")
-            argss.emb_dim = 128
-            argss.num_layer = 2
-            argss.gnn = 'gine-virtual'
+            if '/D/' in ckpt_path:
+                argss.emb_dim = 512
+                argss.gnn = 'gine-virtual'
+                argss.num_layer = 5
+            elif '/C/' in ckpt_path:
+                argss.emb_dim = 128
+                argss.gnn = 'gine'
+                argss.num_layer = 2
+            else:
+                argss.emb_dim = 128
+                argss.num_layer = 2
+                argss.gnn = 'gine-virtual'
+
         elif 'B_054' in ckpt_path or ckpt_path.endswith("model_B_best (1).pth"):
             logging.info("→ Ensemble config")
             argss.gnn = 'ensemble'
