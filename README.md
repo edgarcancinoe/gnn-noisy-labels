@@ -6,6 +6,7 @@ Project developed for the Graph Classification with Noisy Labels Exam Hackaton f
 
 Jose Edgar Hernandez Cancino Estrada | 2223606 | hernandezcancinoestrada.2223606@studenti.uniroma1.it
 Gianni Regina | 1972467 | regina.1972467@studenti.uniroma1.it
+
 ---
 
 ## Repository Structure
@@ -118,4 +119,5 @@ pandas
 
 gnn='gin-virtual', drop_ratio=0.1, num_layer=5, emb_dim=300, batch_size=32, epochs=60, baseline_mode=2, noise_prob=0.35, singleGNN=False, simpleCoTeaching=True, noise_rate=0.35, ramp_up_epochs=5
 
-![Alt Text](img/Visualization A GIC - Virutal Ensemble.png)
+
+![](https://github.com/edgarcancinoe/gnn-noisy-labels/blob/main/img/Visualization%20A%20GIC%20-%20Virutal%20Ensemble.png)
