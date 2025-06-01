@@ -89,6 +89,13 @@ scikit-learn
 pandas
 ```
 
+```bash
+!gdown --folder https://drive.google.com/drive/folders/1_np6HKijJ_0vaNoXCrtVo7z79vuCMCO_ -O datasets
+!git clone --branch baselineCe https://github.com/Graph-Classification-Noisy-Label/hackaton.git
+!pip install torch_geometric
+!git clone https://github.com/edgarcancinoe/gnn-noisy-labels.git
+```
+
 ### Some (early) experimentation reported results
 
 
