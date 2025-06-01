@@ -14,7 +14,7 @@ PRESET_ARGS = {
     'num_layer':   2,
     'emb_dim':     128,
     'batch_size':  32,
-    'epochs':      300,
+    'epochs':      100,
     'baseline_mode': 2, # 1 = CCE, 2 = LS CCE, 3 = ELR
     'noise_prob':  0.2, # Used for Label smoothing CCE
     'singleGNN'    : True,

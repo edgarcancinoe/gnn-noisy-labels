@@ -20,7 +20,7 @@ from source.config import *
 def parse_args():
     parser = argparse.ArgumentParser(description="Train or predict GNN on molecular datasets")
     parser.add_argument("--train_path", type=str, default=None, help="Path to train.json.gz (optional)")
-    parser.add_argument("--test_path", type=str, required=True, help="Path to test.json.gz (required)")
+    parser.add_argument("--test_path", type=str, required=False, help="Path to test.json.gz (required)")
     return parser.parse_args()
 
 def extract_folder_name(path):
@@ -38,22 +38,23 @@ def setup_logging(folder_name):
         ]
     )
 
-def train_model_on_dataset(train_path, folder_name, device):
+def train_model_on_dataset(train_path, folder_name, device, args):
+    print('hahaha')
     train_loader, val_loader = get_data_loaders(train_path, batch_size=32, split_val=True)
     logging.info(f"Loaded train and validation data from '{train_path}'")
-
-    model = build_gnn(num_class=6, gnn_type="gine", num_layer=5, emb_dim=300, drop_ratio=0.5, virtual_node=True).to(device)
+    print('HERE')
+    model = build_gnn(args, device)
     logging.info("Model instantiated for training")
 
     checkpoint_dir = "checkpoints"
     best_val_acc = 0.0
-    num_epochs = 100
+    num_epochs = args.epochs
     save_interval = max(1, num_epochs // 5)
-
+    print('HDDH')
     for epoch in range(1, num_epochs + 1):
         train_loss, train_acc = train_model(model, train_loader, device, epoch)
         val_loss, val_acc = train_model(model, val_loader, device, epoch, validate=True)
-
+        print('HERE2')
         logging.info(
             f"Epoch [{epoch}/{num_epochs}] "
             f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f} | "
@@ -191,19 +192,6 @@ def main():
     config_args.test_path = args.test_path
     config_args.train_path = args.train_path
     
-    # Test dir
-    test_dir_name = os.path.basename(os.path.dirname(config_args.test_path))
- 
-    # Log configuration
-    logs_folder = os.path.join(script_dir, "logs", test_dir_name)
-    log_file = os.path.join(logs_folder, "training.log")
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
-    logging.getLogger().addHandler(logging.StreamHandler())
-
-
-    folder_name = extract_folder_name(args.test_path)
-    setup_logging(folder_name)
     os.makedirs("checkpoints", exist_ok=True)
     os.makedirs("submission", exist_ok=True)
 
@@ -211,12 +199,21 @@ def main():
     logging.info(f"Using device: {device}")
 
     if args.train_path:
-        train_folder = extract_folder_name(args.train_path)
-        if train_folder != folder_name:
-            logging.error(f"Mismatch: train set folder '{train_folder}' ≠ test set folder '{folder_name}'")
-            sys.exit(1)
-        train_model_on_dataset(args.train_path, folder_name, device)
+        folder_name = extract_folder_name(args.train_path)
+        setup_logging(folder_name)
+        train_model_on_dataset(args.train_path, folder_name, device, args=config_args)
+
     elif args.test_path:
+        # Test dir
+        test_dir_name = os.path.basename(os.path.dirname(config_args.test_path))
+        folder_name = extract_folder_name(args.test_path)
+        setup_logging(folder_name)
+        # Log configuration
+        logs_folder = os.path.join(script_dir, "logs", test_dir_name)
+        log_file = os.path.join(logs_folder, "training.log")
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
+        logging.getLogger().addHandler(logging.StreamHandler())
         predict_on_dataset(args.test_path, folder_name, device, config_args)
     else:
         logging.error("No training or testing path provided. Cannot train model.")

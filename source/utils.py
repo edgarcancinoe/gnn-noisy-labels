@@ -61,7 +61,7 @@ def get_data_loaders(train_path, batch_size=32, split_val=True):
     """
     # Load the dataset
     dataset = GraphDataset(train_path, transform=add_zeros)
-    
+    print(f"Dataset loaded with {len(dataset)} samples from {train_path}")
     # Create an indexed version of the dataset
     indexed_dataset = IndexedDataset(dataset)
 
