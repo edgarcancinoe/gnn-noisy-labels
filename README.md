@@ -1,4 +1,4 @@
-# MessyGNN: Robust GNNs Under Noisy Labels
+# NoisyGNN: Robust GNNs Under Noisy Labels
 
 This repository contains a PyTorch Geometric-based framework for training and evaluating Graph Neural Networks (GNNs) under noisy label conditions. The framework supports ensemble learning and model robustness strategies and was developed for molecular graph datasets.
 
@@ -63,10 +63,11 @@ python main.py --test_path datasets/B/test.json.gz
 
 ## Model and Ensemble Logic
 
-- Different models have different architectures GIN/GINE-Virtual variants, ensemble, and different graph_pooling mechanisms.
-- Different loss functions and training algorithms (single GNN, 2-netork co-teaching) were employed, and can be chosen in `config.py`
+- Different models have different architectures GIN/GINE-Virtual variants, ensemble, and different graph pooling mechanisms (mean, attention).
+- Different combination or architectures, parameters and strategies were trained and the selected best-performing models were included in the final ensemble predicting model array, which is used to generate the test predictions.
+- Different loss functions (CCE, Label-Smoothing CE, ERL, etc) and training algorithms (single GNN, 2-netork co-teaching) were employed. These can be chosen in `config.py`.
 - The architecture is adjusted dynamically depending on the checkpoint name.
-- Special configurations like ensemble submodels,, GINs are automatically detected based on configuration.
+- Special configurations like ensemble submodels, GINs are automatically detected based on configuration.
 
 ---
 
