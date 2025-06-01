@@ -636,16 +636,14 @@ def train_coteaching(
         # save best but only if good enough
         if val_acc_f > best_val_acc_f:
             best_val_acc_f = val_acc_f
-            if val_acc_f > at_least:
-                torch.save(model_f.state_dict(),
-                        os.path.join(checkpoints_folder, f"{test_dir_name}_f_best.pth"))
-                print(f"  → Saved best F model with val_acc {val_acc_f:.3f}")
+            torch.save(model_f.state_dict(),
+                    os.path.join(checkpoints_folder, f"{test_dir_name}_f_best.pth"))
+            print(f"  → Saved best F model with val_acc {val_acc_f:.3f}")
         if val_acc_g > best_val_acc_g:
             best_val_acc_g = val_acc_g
-            if val_acc_g > at_least:
-                torch.save(model_g.state_dict(),
-                        os.path.join(checkpoints_folder, f"{test_dir_name}_g_best.pth"))
-                print(f"  → Saved best G model with val_acc {val_acc_g:.3f}")
+            torch.save(model_g.state_dict(),
+                    os.path.join(checkpoints_folder, f"{test_dir_name}_g_best.pth"))
+            print(f"  → Saved best G model with val_acc {val_acc_g:.3f}")
 
     # return everything for plotting (including ensemble)
     return (
