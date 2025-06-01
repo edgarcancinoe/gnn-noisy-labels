@@ -9,7 +9,7 @@ import torch
 import pandas as pd
 from torch_geometric.loader import DataLoader
 from source.model import *
-from source.utils import save_predictions, build_model, load_checkpoint
+from source.utils import save_predictions, build_gnn, load_checkpoint
 from source.loadData import GraphDataset  # type: ignore
 from source.utils import set_seed, get_data_loaders  # type: ignore
 import copy
@@ -42,7 +42,7 @@ def train_model_on_dataset(train_path, folder_name, device):
     train_loader, val_loader = get_data_loaders(train_path, batch_size=32, split_val=True)
     logging.info(f"Loaded train and validation data from '{train_path}'")
 
-    model = build_model(num_class=6, gnn_type="gine", num_layer=5, emb_dim=300, drop_ratio=0.5, virtual_node=True).to(device)
+    model = build_gnn(num_class=6, gnn_type="gine", num_layer=5, emb_dim=300, drop_ratio=0.5, virtual_node=True).to(device)
     logging.info("Model instantiated for training")
 
     checkpoint_dir = "checkpoints"

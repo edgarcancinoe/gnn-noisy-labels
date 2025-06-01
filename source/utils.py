@@ -126,7 +126,7 @@ def get_loss(args, num_train_samples = None):
   else:
     raise ValueError('Invalid baseline mode')
 
-def build_model(args, device):
+def build_gnn(args, device):
     if args.gnn == 'gin':
         return GNN(num_class=6, gnn_type='gin', num_layer=args.num_layer, emb_dim=args.emb_dim,drop_ratio=args.drop_ratio, virtual_node=False, graph_pooling=args.graph_pooling).to(device)
     elif args.gnn == 'gin-virtual':
