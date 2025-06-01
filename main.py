@@ -164,10 +164,8 @@ def predict_on_dataset(test_path, folder_name, device, args):
     y_pred = weighted_probs.argmax(axis=1)
 
     # Save output
-    df = pd.DataFrame({"id": y_ids, "prediction": y_pred}) if y_ids else pd.DataFrame({"prediction": y_pred})
-    out_csv = os.path.join("submission", f"testset_{folder_name}.csv")
-    df.to_csv(out_csv, index=False)
-    logging.info(f"Ensemble predictions saved to {out_csv}")
+    save_predictions(y_pred, test_path)
+
     
 def main():
     args = parse_args()
