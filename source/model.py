@@ -769,7 +769,6 @@ class GraphClassifier(torch.nn.Module):
         h = self.encoder(batch)
         return self.classifier(h)
 
-
 def nt_xent(z1, z2, temp=0.2):
     B = z1.size(0)
     z = torch.cat([z1, z2], dim=0)        # [2B, D]
@@ -842,7 +841,7 @@ def train_gnn(model, train_loader, val_loader, optimizer, criterion,
   best_val_accuracy = 0.0
   for epoch in range(num_epochs):
       
-      checkpoint_path = os.path.join(checkpoints_folder, f"model_{test_dir_name}")
+      checkpoint_path = os.path.join(checkpoints_folder, f"model_{test_dir_name}.pth")
 
       train_loss, train_acc = gnn_epoch(
           train_loader, model, optimizer, criterion, device,
@@ -864,7 +863,6 @@ def train_gnn(model, train_loader, val_loader, optimizer, criterion,
 
       if val_acc > best_val_accuracy:
           best_val_accuracy = val_acc
-          print('Saving model...', end=' ')
           torch.save(model.state_dict(), checkpoint_path)
           print(f"Best model updated and saved at {checkpoint_path}")
 
