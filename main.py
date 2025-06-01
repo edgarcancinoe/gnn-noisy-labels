@@ -123,7 +123,10 @@ def predict_on_dataset(test_path, folder_name, device, args):
                 argss.emb_dim = 128
                 argss.num_layer = 2
                 argss.gnn = 'gine-virtual'
-
+        elif name == 'gian-gin-virtual-model_D_best.pth':
+            argss.gnn = 'gin-virtual'
+            argss.emb_dim = 64
+            argss.graph_pooling = 'attention'
         elif 'B_054' in ckpt_path or ckpt_path.endswith("model_B_best (1).pth"):
             logging.info("→ Ensemble config")
             argss.gnn = 'ensemble'
