@@ -1,0 +1,123 @@
+import os
+import torch
+import pandas as pd
+import tqdm
+from model import *
+
+def evaluate(data_loader, model, device, calculate_accuracy=False):
+    """
+      Evaluate GNN on test set
+    """
+
+    # Set model to evaluation mode (disables dropout, batch-norm, etc.)
+    model.eval()
+    correct, total, total_loss = 0, 0, 0
+    predictions = []
+    criterion = torch.nn.CrossEntropyLoss() # Fixed CE loss as we want real performance
+    with torch.no_grad():
+        # Iterate trough all test set using tqdm for visualization
+        for data in tqdm(data_loader, desc="Iterating eval graphs", unit="batch"):
+            data = data.to(device)
+            output = model(data)
+            pred = output.argmax(dim=1)
+
+            if calculate_accuracy:
+                correct += (pred == data.y).sum().item()
+                total += data.y.size(0)
+                total_loss += criterion(output, data.y).item()
+            else:
+                predictions.extend(pred.cpu().numpy())
+
+    if calculate_accuracy:
+        accuracy = correct / total
+        return  total_loss / len(data_loader), accuracy
+    return predictions
+
+
+def save_predictions(predictions, test_path):
+    script_dir = os.getcwd()
+    submission_folder = os.path.join(script_dir, "submission")
+    test_dir_name = os.path.basename(os.path.dirname(test_path))
+
+    os.makedirs(submission_folder, exist_ok=True)
+
+    output_csv_path = os.path.join(submission_folder, f"testset_{test_dir_name}.csv")
+
+    test_graph_ids = list(range(len(predictions)))
+    output_df = pd.DataFrame({
+        "id": test_graph_ids,
+        "pred": predictions
+    })
+
+    output_df.to_csv(output_csv_path, index=False)
+    print(f"Predictions saved to {output_csv_path}")
+
+def add_zeros(data):
+    data.x = torch.zeros(data.num_nodes, dtype=torch.long)
+    return data
+
+class IndexedDataset(Dataset):
+    def __init__(self, base_dataset):
+        self.base = base_dataset
+    def __len__(self):
+        return len(self.base)
+    def __getitem__(self, ix):
+        data = self.base[ix]
+        # attach a tensor of the global index
+        data.idx = torch.tensor(ix, dtype=torch.long)
+        return data
+    
+
+
+### Model and loss selection
+def get_loss(args, num_train_samples = None):
+  if args.baseline_mode == 1:
+    return CELossWithIndex()
+  elif args.baseline_mode == 2:
+    return LabelSmoothingCrossEntropyLoss(args.noise_prob)
+  elif args.baseline_mode == 3:
+    return ELRLoss(num_train_samples, 6)
+  elif args.baseline_mode == 4:
+    return SymmetricCrossEntropyLossWithIndex()
+  elif args.baseline_mode == 5:
+    print("Using Noisy CE LOSS")
+    return NoisyCrossEntropyLoss(0.6)
+  else:
+    raise ValueError('Invalid baseline mode')
+
+def build_gnn(args, device):
+    if args.gnn == 'gin':
+        return GNN(num_class=6, gnn_type='gin', num_layer=args.num_layer, emb_dim=args.emb_dim,drop_ratio=args.drop_ratio, virtual_node=False, graph_pooling=args.graph_pooling).to(device)
+    elif args.gnn == 'gin-virtual':
+        return GNN(num_class=6, gnn_type='gin', num_layer=args.num_layer, emb_dim=args.emb_dim,drop_ratio=args.drop_ratio, virtual_node=True, graph_pooling=args.graph_pooling).to(device)
+    elif args.gnn == 'gcn':
+        return GNN(num_class=6, gnn_type='gcn', num_layer=args.num_layer, emb_dim=args.emb_dim,drop_ratio=args.drop_ratio, virtual_node=False, graph_pooling=args.graph_pooling).to(device)
+    elif args.gnn == 'gcn-virtual':
+        return GNN(num_class=6, gnn_type='gcn', num_layer=args.num_layer, emb_dim=args.emb_dim,drop_ratio=args.drop_ratio, virtual_node=True, graph_pooling=args.graph_pooling).to(device)
+    elif args.gnn == 'gine':
+        return GNN(num_class=6, gnn_type='gine', num_layer=args.num_layer, emb_dim=args.emb_dim,drop_ratio=args.drop_ratio, virtual_node=False, graph_pooling=args.graph_pooling).to(device)
+    elif args.gnn == 'gine-virtual':
+        return GNN(num_class=6, gnn_type='gine', num_layer=args.num_layer, emb_dim=args.emb_dim,drop_ratio=args.drop_ratio, virtual_node=True, graph_pooling=args.graph_pooling).to(device)
+
+    elif args.gnn == 'ensemble':
+       #ensemble_paths = ['/kaggle/working/hackaton/checkpoints/model_weights.pth', '/kaggle/working/hackaton/othermodels/checkpoint.pth']
+        # Carica i pesi salvati, MA con strict=False
+        model1 = GNN(num_class=6, gnn_type='gine', num_layer=args.num_layer1, emb_dim=args.emb_dim1, drop_ratio=args.drop_ratio1, virtual_node=False, graph_pooling=args.graph_pooling).to(device)
+        #pretrained_dict = torch.load("/kaggle/working/hackaton/checkpoints/model_weights.pth", map_location=device)
+        #missing, unexpected = model1.load_state_dict(pretrained_dict, strict=False)
+        #print("Chiavi NON trovate nel modello nuovo (verranno ignorate):\n", missing)
+        #print("Chiavi “extra” nel file .pth (verranno ignorate):\n", unexpected)
+
+        #model1.load_state_dict(torch.load("/kaggle/working/hackaton/checkpoints/model_weights.pth", map_location=device))
+        model2 = GNN(num_class=6, gnn_type='gine', num_layer=args.num_layer2, emb_dim=args.emb_dim2,drop_ratio=args.drop_ratio2, virtual_node=False, graph_pooling=args.graph_pooling).to(device)
+        #model2.load_state_dict(checkpoint['model_state_dict'])
+        model3 = GNN(num_class=6, gnn_type='gine', num_layer=args.num_layer3, emb_dim=args.emb_dim3,drop_ratio=args.drop_ratio3, virtual_node=True,graph_pooling=args.graph_pooling).to(device)
+        model4 = GNN(num_class=6, gnn_type='gcn', num_layer=args.num_layer4, emb_dim=args.emb_dim4,drop_ratio=args.drop_ratio4, virtual_node=True,graph_pooling=args.graph_pooling).to(device)
+        model5 = GNN(num_class=6, gnn_type='gcn', num_layer=args.num_layer5, emb_dim=args.emb_dim5,drop_ratio=args.drop_ratio5, virtual_node=False,graph_pooling=args.graph_pooling).to(device)
+
+        ensemble_weights =[0.2, 0.2, 0.2, 0.2, 0.2]
+
+        return EnsembleGNN(models=[model1, model2, model3, model4, model5],weights=ensemble_weights).to(device)
+
+    else:
+        raise ValueError(f'Invalid GNN type: {args.gnn}')
