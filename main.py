@@ -9,7 +9,7 @@ import torch
 import pandas as pd
 from torch_geometric.loader import DataLoader
 from source.model import *
-from source.utils import save_predictions, build_gnn, load_checkpoint
+from source.utils import save_predictions, build_gnn, load_checkpoint, get_loss, train_gnn, train_coteaching  # type: ignore
 from source.loadData import GraphDataset  # type: ignore
 from source.utils import set_seed, get_data_loaders, add_zeros  # type: ignore
 import copy
@@ -39,38 +39,62 @@ def setup_logging(folder_name):
     )
 
 def train_model_on_dataset(train_path, folder_name, device, args):
-    print('hahaha')
+
     train_loader, val_loader = get_data_loaders(train_path, batch_size=32, split_val=True)
     logging.info(f"Loaded train and validation data from '{train_path}'")
-    print('HERE')
+
     model = build_gnn(args, device)
     logging.info("Model instantiated for training")
 
-    checkpoint_dir = "checkpoints"
-    best_val_acc = 0.0
+    # --- Prepare objects ------------------------------------------------------
     num_epochs = args.epochs
-    save_interval = max(1, num_epochs // 5)
-    print('HDDH')
-    for epoch in range(1, num_epochs + 1):
-        train_loss, train_acc = train_model(model, train_loader, device, epoch)
-        val_loss, val_acc = train_model(model, val_loader, device, epoch, validate=True)
-        print('HERE2')
-        logging.info(
-            f"Epoch [{epoch}/{num_epochs}] "
-            f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f} | "
-            f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}"
-        )
+    if num_checkpoints > 1:
+        checkpoint_intervals = [int((i + 1) * num_epochs / num_checkpoints) for i in range(num_checkpoints)]
+    else:
+        checkpoint_intervals = [num_epochs]
+    training_params = ()
 
-        if epoch % save_interval == 0 or epoch == num_epochs:
-            ckpt_path = os.path.join(checkpoint_dir, f"model_{folder_name}_epoch_{epoch}.pth")
-            torch.save(model.state_dict(), ckpt_path)
-            logging.info(f"Checkpoint saved: {ckpt_path}")
+    # --- Prepare objects ------------------------------------------------------
+    num_epochs = args.epochs
+    if num_checkpoints > 1:
+        checkpoint_intervals = [int((i + 1) * num_epochs / num_checkpoints) for i in range(num_checkpoints)]
+    else:
+        checkpoint_intervals = [num_epochs]
 
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
-            best_ckpt = os.path.join(checkpoint_dir, f"model_{folder_name}_best.pth")
-            torch.save(model.state_dict(), best_ckpt)
-            logging.info(f"New best model saved: {best_ckpt}")
+    training_params = ()
+    checkpoints_folder = os.path.join("checkpoints", folder_name)
+    train_size = len(train_loader.dataset)
+
+    # Choose models and training algorithm -------------------------------------
+    # --------------------------------------------------------------------------
+    assert not (args.singleGNN and args.simpleCoTeaching)
+    training_fn = lambda: None
+    # Case for training a single GNN -------------------------------------------
+    if args.singleGNN:
+      # Obtain GNN model
+      model = build_gnn(args, device)
+      optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+      # Choose Loss function according to parameters
+      criterion = get_loss(args, num_train_samples=train_size).to(device)
+      training_fn = train_gnn
+      training_params = (model, train_loader, val_loader, optimizer, criterion, device, num_epochs, checkpoints_folder, checkpoint_intervals, at_least, folder_name)
+      print('Training Single GNN with arguments:\n', args)
+
+    # Case for perform simple co-teaching --------------------------------------
+    if args.simpleCoTeaching:
+      model_f = build_gnn(args, device)
+      model_g = build_gnn(args, device)
+      opt_f = torch.optim.Adam(model_f.parameters(), lr=adams_lr)
+      opt_g = torch.optim.Adam(model_g.parameters(), lr=adams_lr)
+      loss_f = get_loss(args, num_train_samples=train_size).to(device)
+      loss_g = get_loss(args, num_train_samples=train_size).to(device)
+      training_fn = train_coteaching
+      training_params = (model_f, model_g, train_loader, val_loader, opt_f, opt_g, loss_f, loss_g, device, \
+                         num_epochs, checkpoints_folder, checkpoint_intervals, at_least, folder_name, args.noise_rate, args.ramp_up_epochs)
+      print('Training Co-Teaching algorithm with arguments', args)
+
+    results = training_fn(*training_params)
+
 
 def predict_on_dataset(test_path, folder_name, device, args, submission_models=True):
     """

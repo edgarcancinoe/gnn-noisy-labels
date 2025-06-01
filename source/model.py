@@ -41,7 +41,6 @@ def evaluate(data_loader, model, device, calculate_accuracy=False):
         return  total_loss / len(data_loader), accuracy
     return predictions
 
-
 ## Losses
 
 class SymmetricCrossEntropyLossWithIndex(nn.Module):
@@ -836,7 +835,7 @@ def gnn_epoch(data_loader, model, optimizer, criterion, device,
     accuracy = correct / total
     return avg_loss, accuracy
 
-def train_model(model, train_loader, val_loader, optimizer, criterion,
+def train_gnn(model, train_loader, val_loader, optimizer, criterion,
               device, num_epochs, checkpoints_folder, checkpoint_intervals, at_least, test_dir_name):
 
   train_losses, train_accuracies, val_losses, val_accuracies = [], [], [], []
