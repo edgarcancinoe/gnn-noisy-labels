@@ -2,7 +2,8 @@ import os
 import torch
 import pandas as pd
 import tqdm
-from model import *
+from source.model import *
+from torch.utils.data import random_split, Dataset
 
 def evaluate(data_loader, model, device, calculate_accuracy=False):
     """
@@ -32,6 +33,19 @@ def evaluate(data_loader, model, device, calculate_accuracy=False):
         accuracy = correct / total
         return  total_loss / len(data_loader), accuracy
     return predictions
+
+import random
+import numpy as np
+def set_seed(seed=777):
+    seed = seed
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
+    random.seed(seed)
+    np.random.seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
 
 
 def save_predictions(predictions, test_path):
@@ -85,7 +99,7 @@ def get_loss(args, num_train_samples = None):
   else:
     raise ValueError('Invalid baseline mode')
 
-def build_gnn(args, device):
+def build_model(args, device):
     if args.gnn == 'gin':
         return GNN(num_class=6, gnn_type='gin', num_layer=args.num_layer, emb_dim=args.emb_dim,drop_ratio=args.drop_ratio, virtual_node=False, graph_pooling=args.graph_pooling).to(device)
     elif args.gnn == 'gin-virtual':

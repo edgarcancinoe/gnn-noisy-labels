@@ -10,7 +10,7 @@ import os
 import torch.nn as nn
 import logging
 
-from utils import evaluate
+from source.utils import evaluate
 ## Losses
 
 class SymmetricCrossEntropyLossWithIndex(nn.Module):

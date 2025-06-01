@@ -6,9 +6,11 @@ import glob
 import logging
 import torch
 import pandas as pd
-
+from torch_geometric.loader import DataLoader  
 from source.model import *
-from source.utils import save_predictions
+from source.utils import save_predictions, build_model
+from source.loadData import GraphDataset # type: ignore
+from source.utils import set_seed        # type: ignore
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train or predict GNN on molecular datasets")
@@ -145,7 +147,7 @@ def main():
     with torch.no_grad():
         for batch in test_loader:
             batch = batch.to(device)
-            logits = predict_model(model, batch)
+            logits = model(model, batch)
             preds = torch.argmax(logits, dim=1).cpu().numpy()
             all_preds.extend(preds.tolist())
             if hasattr(batch, "idx"):
