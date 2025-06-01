@@ -71,13 +71,17 @@ def train_model_on_dataset(train_path, folder_name, device):
             torch.save(model.state_dict(), best_ckpt)
             logging.info(f"New best model saved: {best_ckpt}")
 
-def predict_on_dataset(test_path, folder_name, device, args):
+def predict_on_dataset(test_path, folder_name, device, args, submission_models=True):
     """
     Loads all .pth files from the corresponding dataset folder (A, B, C, D),
     runs ensemble prediction using equal weights, and saves the result.
     """
     # Load all checkpoints matching the dataset folder name
-    checkpoint_dir = os.path.join("checkpoints", folder_name)
+    if submission_models:
+        logging.info("Using submission models for prediction.")
+        checkpoint_dir = os.path.join("submission_models", folder_name)
+    else:
+        checkpoint_dir = os.path.join("checkpoints", folder_name)
     os.makedirs(checkpoint_dir, exist_ok=True)
 
     ckpt_paths = sorted(glob.glob(os.path.join(checkpoint_dir, "*.pth")))
@@ -85,7 +89,7 @@ def predict_on_dataset(test_path, folder_name, device, args):
         logging.error(f"No .pth files found in '{checkpoint_dir}'.")
         sys.exit(1)
         
-    logging.info(f"Found {len(ckpt_paths)} checkpoint(s) for dataset {folder_name}.")
+    logging.info(f"Found {len(ckpt_paths)} model(s) for dataset {folder_name}.")
 
     # Prepare test loader
     test_loader = DataLoader(
