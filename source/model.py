@@ -841,7 +841,7 @@ def train_gnn(model, train_loader, val_loader, optimizer, criterion,
   best_val_accuracy = 0.0
   for epoch in range(num_epochs):
       
-      checkpoint_path = os.path.join(checkpoints_folder, f"model_{test_dir_name}.pth")
+      checkpoint_path = os.path.join(checkpoints_folder, f"best_model_{test_dir_name}.pth")
 
       train_loss, train_acc = gnn_epoch(
           train_loader, model, optimizer, criterion, device,
@@ -863,8 +863,8 @@ def train_gnn(model, train_loader, val_loader, optimizer, criterion,
 
       if val_acc > best_val_accuracy:
           best_val_accuracy = val_acc
-          torch.save(model.state_dict(), 'best_' + checkpoint_path)
-          print(f"Best model updated and saved at {'best_' + checkpoint_path}")
+          torch.save(model.state_dict(), checkpoint_path)
+          print(f"Best model updated and saved at {checkpoint_path}")
 
   return (train_losses, train_accuracies, val_losses, val_accuracies)
 
