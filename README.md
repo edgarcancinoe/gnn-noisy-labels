@@ -4,13 +4,13 @@ This repository contains a PyTorch Geometric-based framework for training and ev
 
 Project developed for the Graph Classification with Noisy Labels Exam Hackaton for the Deep Learning class of the MSc in Artificial Intelligence of Sapienza University of Rome.
 
-Jose Edgar Hernandez Cancino Estrada
-Gianni Regina
+Jose Edgar Hernandez Cancino Estrada | 2223606 | hernandezcancinoestrada.2223606@studenti.uniroma1.it
+Gianni Regina | 1972467 | regina.1972467@studenti.uniroma1.it
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
-```
+```bash
 .
 ├── submission_models/    # Folder with our best models used for final submission
 │   └── A/, B/, C/, D/    # One folder per dataset
@@ -38,7 +38,7 @@ Gianni Regina
 
 ### Running Training and Prediction
 
-#### 🔧 Train a Model
+#### Train a Model
 
 ```bash
 python main.py --train_path datasets/B/train.json.gz --test_path datasets/B/test.json.gz
@@ -47,7 +47,7 @@ python main.py --train_path datasets/B/train.json.gz --test_path datasets/B/test
 - This will train a model on the specified training set.
 - Checkpoints will be saved to `checkpoints/B/`
 
-#### 📈 Predict Only (Ensemble Mode)
+#### Predict Only (Ensemble Mode)
 
 ```bash
 python main.py --test_path datasets/B/test.json.gz
@@ -79,7 +79,7 @@ python main.py --test_path datasets/B/test.json.gz
 
 ## Requirements
 
-```
+```bash
 python
 torch
 torch-geometric
@@ -87,10 +87,3 @@ numpy
 scikit-learn
 pandas
 ```
-
----
-
-## 🧠 Authors & Credits
-
-This codebase was prepared for a robust learning task under noisy labels with GNNs.
-
