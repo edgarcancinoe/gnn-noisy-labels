@@ -825,7 +825,7 @@ def gnn_epoch(data_loader, model, optimizer, criterion, device,
 
     if save_checkpoints:
         # Construct checkpoint filename with epoch number (1-based)
-        checkpoint_file = f"{checkpoint_path}_epoch_{current_epoch + 1}.pth"
+        checkpoint_file = f"{checkpoint_path.removesuffix('.pth')}_epoch_{current_epoch + 1}.pth"
         torch.save(model.state_dict(), checkpoint_file)
         print(f"Checkpoint saved at {checkpoint_file}")
 
