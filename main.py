@@ -43,7 +43,7 @@ def train_model_on_dataset(train_path, folder_name, device, args):
     train_loader, val_loader = get_data_loaders(train_path, batch_size=32, split_val=True)
     logging.info(f"Loaded train and validation data from '{train_path}'")
     print('Data has ben loaded and graph object constructed.')
-    model = build_gnn(args, device)
+
     logging.info("Model instantiated for training")
 
     # --- Prepare objects ------------------------------------------------------
