@@ -52,14 +52,6 @@ def train_model_on_dataset(train_path, folder_name, device, args):
         checkpoint_intervals = [int((i + 1) * num_epochs / num_checkpoints) for i in range(num_checkpoints)]
     else:
         checkpoint_intervals = [num_epochs]
-    training_params = ()
-
-    # --- Prepare objects ------------------------------------------------------
-    num_epochs = args.epochs
-    if num_checkpoints > 1:
-        checkpoint_intervals = [int((i + 1) * num_epochs / num_checkpoints) for i in range(num_checkpoints)]
-    else:
-        checkpoint_intervals = [num_epochs]
 
     training_params = ()
     checkpoints_folder = os.path.join("checkpoints", folder_name)
