@@ -9,7 +9,6 @@ from torch.utils.data import random_split, Dataset
 import random
 import numpy as np
 def set_seed(seed=777):
-    seed = seed
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
